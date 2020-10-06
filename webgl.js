@@ -2,10 +2,13 @@ global.THREE = require("three");
 const random = require("canvas-sketch-util/random");
 const canvasSketch = require("canvas-sketch");
 const palettes = require("nice-color-palettes");
+const eases = require("eases");
 
 const settings = {
+  dimensions: [512, 512],
+  fps: 24,
+  duration: 4,
   animate: true,
-  dimensions: [1024, 1280],
   context: "webgl",
   attributes: { antialias: true },
 };
@@ -71,7 +74,8 @@ const sketch = ({ context, width, height }) => {
 
       camera.updateProjectionMatrix();
     },
-    render({ time }) {
+    render({ playhead }) {
+      scene.rotation.y = Math.sin(playhead * Math.PI * 2);
       renderer.render(scene, camera);
     },
     unload() {
