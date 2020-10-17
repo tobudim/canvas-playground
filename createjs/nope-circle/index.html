@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edumedia intro</title>
+  </head>
+  <body onload="init();">
+    <canvas id="canvas" style="width: 100vw; height: 100vh"></canvas>
+
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <!-- <script src="https://code.createjs.com/1.0.0/tweenjs.min.js"></script> -->
+
+    <script>
+      function init() {
+        const canvas = document.getElementById("canvas");
+        canvas.width = canvas.getBoundingClientRect().width;
+        canvas.height = canvas.getBoundingClientRect().height;
+
+        const stage = new createjs.Stage("canvas");
+        stage.enableMouseOver(10);
+        const circle = new createjs.Shape();
+        circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, 50);
+        circle.x = 100;
+        circle.y = 100;
+        circle.on("mouseover", handleCircleOver);
+
+        function handleCircleOver(event) {
+          createjs.Tween.get(circle, { loop: false }).to(
+            {
+              y: Math.floor(Math.random() * canvas.height),
+              x: Math.floor(Math.random() * canvas.width),
+            },
+            100,
+            createjs.Ease.getPowInOut(4)
+          );
+          createjs.Ticker.setFPS(60);
+        }
+
+        stage.addChild(circle);
+
+        createjs.Tween.get(circle, { loop: false }).to(
+          { y: canvas.height / 2 - 25, x: canvas.width / 2 - 25 },
+          1000,
+          createjs.Ease.getPowInOut(4)
+        );
+        createjs.Ticker.setFPS(60);
+        createjs.Ticker.addEventListener("tick", stage);
+      }
+    </script>
+  </body>
+</html>
