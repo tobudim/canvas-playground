@@ -3,6 +3,8 @@ const random = require("canvas-sketch-util/random");
 const canvasSketch = require("canvas-sketch");
 const palettes = require("nice-color-palettes");
 const eases = require("eases");
+const BezierEeasing = require("bezier-easing");
+const glslify = require("glslify");
 
 const settings = {
   dimensions: [512, 512],
@@ -25,23 +27,58 @@ const sketch = ({ context, width, height }) => {
   const scene = new THREE.Scene();
   const palette = random.pick(palettes);
 
-  for (let i = 0; i < 40; i++) {
+  const fragmentShader = glslify(`
+    varying vec2 vUv;
+    #pragma glslify: noise = require('glsl-noise/simplex/3d');
+    uniform vec3 color;
+    uniform float playhead;
+    void main () {
+      float offset = 0.2 * noise(vec3(vUv.xy * 5.0, playhead));
+      gl_FragColor = vec4(vec3(color * vUv.x + offset), 1.0);
+    }
+  `);
+
+  const vertexShader = glslify(`
+    varying vec2 vUv;
+    uniform float playhead;
+    #pragma glslify: noise = require('glsl-noise/simplex/4d');
+    void main () {
+      vUv = uv;
+      vec3 pos = position.xyz;
+      pos += 0.05 * normal * noise(vec4(pos.xyz * 10.0, 0.0));
+      pos += 0.25 * normal * noise(vec4(pos.xyz * 4.0, playhead));
+      pos += 0.5 * normal * noise(vec4(pos.xyz * 1.0, 0.0));
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+    }
+  `);
+
+  const meshes = [];
+  for (let i = 0; i < 1; i++) {
+    const box = new THREE.SphereGeometry(1, 32, 32);
     const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshStandardMaterial({ color: random.pick(palette) })
+      box,
+      new THREE.ShaderMaterial({
+        fragmentShader,
+        vertexShader,
+        uniforms: {
+          playhead: { value: 0 },
+          color: { value: new THREE.Color(random.pick(palette)) },
+        },
+      })
     );
-    mesh.position.set(
-      random.range(-1, 1),
-      random.range(-1, 1),
-      random.range(-1, 1)
-    );
-    mesh.scale.set(
-      random.range(-1, 1),
-      random.range(-1, 1),
-      random.range(-1, 1)
-    );
+    // mesh.position.set(
+    //   random.range(-1, 1),
+    //   random.range(-1, 1),
+    //   random.range(-1, 1)
+    // );
+    // mesh.scale.set(
+    //   random.range(-1, 1),
+    //   random.range(-1, 1),
+    //   random.range(-1, 1)
+    // );
     mesh.scale.multiplyScalar(0.6);
     scene.add(mesh);
+    meshes.push(mesh);
   }
 
   scene.add(new THREE.AmbientLight("hsl(0, 0%, 10%"));
@@ -49,6 +86,8 @@ const sketch = ({ context, width, height }) => {
   const light = new THREE.DirectionalLight("white", 0.5);
   light.position.set(0, 0, 4);
   scene.add(light);
+
+  const easeFn = BezierEeasing(0.67, 0.03, 0.29, 0.99);
 
   return {
     resize({ pixelRatio, viewportWidth, viewportHeight }) {
@@ -74,8 +113,13 @@ const sketch = ({ context, width, height }) => {
 
       camera.updateProjectionMatrix();
     },
-    render({ playhead }) {
-      scene.rotation.y = Math.sin(playhead * Math.PI * 2);
+    render({ playhead, time }) {
+      const t = Math.sin(playhead * Math.PI * 2);
+      scene.rotation.z = easeFn(t);
+
+      meshes.forEach((mesh) => {
+        mesh.material.uniforms.playhead.value = playhead;
+      });
       renderer.render(scene, camera);
     },
     unload() {
