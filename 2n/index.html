@@ -10,56 +10,39 @@
       body {
         margin: 0;
         padding: 0;
-        background: linear-gradient(171deg, #549181, #545991, #917954, #915458);
+      }
+
+      #wrapper {
+        background: linear-gradient(221deg, #2b3ba7, #b38737, #3eaba5, #bc6f55);
         background-size: 800% 800%;
-
-        -webkit-animation: AnimationName 8s ease infinite;
-        -moz-animation: AnimationName 8s ease infinite;
-        animation: AnimationName 8s ease infinite;
-
-        @-webkit-keyframes AnimationName {
-          0% {
-            background-position: 81% 0%;
-          }
-          50% {
-            background-position: 20% 100%;
-          }
-          100% {
-            background-position: 81% 0%;
-          }
-        }
-        @-moz-keyframes AnimationName {
-          0% {
-            background-position: 81% 0%;
-          }
-          50% {
-            background-position: 20% 100%;
-          }
-          100% {
-            background-position: 81% 0%;
-          }
-        }
-        @keyframes AnimationName {
-          0% {
-            background-position: 81% 0%;
-          }
-          50% {
-            background-position: 20% 100%;
-          }
-          100% {
-            background-position: 81% 0%;
-          }
-        }
+        -webkit-animation: AnimationName 15s ease infinite;
+        -moz-animation: AnimationName 15s ease infinite;
+        -webkit-animation: AnimationName 15s ease infinite;
+        animation: AnimationName 15s ease infinite;
       }
 
       canvas {
         width: 100vw;
         min-height: 100vh;
       }
+
+      @keyframes AnimationName {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
     </style>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <div id="wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
     <script src="main.mjs" type="module"></script>
   </body>
 </html>
