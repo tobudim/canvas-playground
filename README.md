@@ -28,14 +28,12 @@ Repo dedicated to canvas learning. 🙃
 - **arts**: some arts, all including their screenshots and their code.
 - **edumedia**: Hey EduMedia, that's your place! 😉
 
-````
-
 ## Arts
 
 ```bash
 npx canvas-sketch-cli
 canvas-sketch [file.js]
-````
+```
 
 Runs a server with the file's canvas displayed.
 
